@@ -5,10 +5,12 @@ def fetch():
     username = input("Enter GitHub Username: ")
     url = config.API_URL + username
     try:
-        mydata = urllib.request.urlopen(url).read()
+        user_data = urllib.request.urlopen(url).read()
+        repo_data = urllib.request.urlopen(url+"/repos").read()
     except urllib.error.HTTPError:
         return
     except urllib.error.URLError:
         return
-    data = json.loads(mydata)
-    return data
+    r_data = json.loads(repo_data)
+    u_data = json.loads(user_data)
+    return u_data,r_data
