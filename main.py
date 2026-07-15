@@ -66,8 +66,8 @@ def main():
                 search.searching()
                 pause()
             elif choice == 4:
-                export.files()
-                pause()
+                os.system("cls")
+                export.display()
             elif choice == 5:
                 compare.comparing()
                 pause()

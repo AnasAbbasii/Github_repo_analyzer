@@ -124,3 +124,19 @@ def display():
 
     for language, count in languages_used():
         print(f"{language or 'Unknown':15} {count}".center(len(line)))  
+        
+def get_report():
+    return {
+        "Username": database.get_username(),
+        "Repositories": repositories(),
+        "Total Stars": total_stars(),
+        "Total Forks": total_forks(),
+        "Total Watchers": total_watchers(),
+        "Open Issues": open_issues(),
+        "Largest Repo": largest_repo(),
+        "Most Starred Repo": most_starred_repo(),
+        "Most Forked Repo": most_forked_repo(),
+        "Average Stars": avg_stars(),
+        "Average Forks": avg_forks(),
+        "Languages": dict(languages_used())
+    }
