@@ -19,11 +19,10 @@ def display_menu():
     print(c.mline)
     menu = ["1. Fetch & Store GitHub User Data",
     "2. Run Database Analytics",
-    "3. Advanced Search (Filter by language, stars, etc.)",
-    "4. Export Reports (CSV/JSON)",
-    "5. Compare Two Users",
-    "6. View Top Languages Chart",
-    "7. Exit"]
+    "3. Export Reports (CSV/JSON)",
+    "4. Compare Two Users",
+    "5. View Top Languages Chart",
+    "6. Exit"]
     for items in menu:
         print(items.center(width))
     print(c.mline)
@@ -56,6 +55,7 @@ def main():
             continue
         if 1 <= choice <=7:    
             if choice == 1:
+                username = input("Enter GitHub Username: ")
                 database.store()
                 pause()
             elif choice == 2:
@@ -63,18 +63,15 @@ def main():
                 analytics.display()    
                 pause()
             elif choice == 3:
-                search.searching()
-                pause()
-            elif choice == 4:
                 os.system("cls")
                 export.display()
-            elif choice == 5:
-                compare.comparing()
+            elif choice == 4:
+                compare.comparison()
                 pause()
-            elif choice ==6:
+            elif choice ==5:
                 charts.charting()
                 pause()
-            elif choice == 7:
+            elif choice == 6:
                 break        
         else:
             errormsg()

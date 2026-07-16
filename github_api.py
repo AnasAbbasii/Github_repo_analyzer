@@ -1,8 +1,7 @@
 import urllib.parse,urllib.error, urllib.request
 import config
 import json
-def fetch():
-    username = input("Enter GitHub Username: ")
+def fetch(username):
     url = config.API_URL + username
     try:
         user_data = urllib.request.urlopen(url).read()

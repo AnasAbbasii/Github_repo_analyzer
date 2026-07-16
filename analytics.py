@@ -9,24 +9,42 @@ def repositories():
     return config.cur.fetchone()[0]
 
 
-def total_stars():
+def total_stars(username):
     config.cur.execute("""
-        SELECT IFNULL(SUM(stars),0)
-        FROM Repos;
-    """)
+    SELECT SUM(stars)
+    FROM Repos
+    WHERE github_userid = (
+        SELECT github_id
+        FROM Users
+        WHERE username = ?
+    )
+""", (username,))
     return config.cur.fetchone()[0]
 
 
-def total_forks():
-    config.cur.execute("SELECT SUM(forks) FROM Repos")
+def total_forks(username):
+    config.cur.execute("""
+    SELECT SUM(forks)
+    FROM Repos
+    WHERE github_userid = (
+        SELECT github_id
+        FROM Users
+        WHERE username = ?
+    )
+""", (username,))
     return config.cur.fetchone()[0]
 
 
-def total_watchers():
+def total_watchers(username):
     config.cur.execute("""
-        SELECT SUM(watchers)
-        FROM Repos;
-    """)
+    SELECT SUM(watchers)
+    FROM Repos
+    WHERE github_userid = (
+        SELECT github_id
+        FROM Users
+        WHERE username = ?
+    )
+""", (username,))
     return config.cur.fetchone()[0]
 
 
@@ -38,14 +56,17 @@ def open_issues():
     return config.cur.fetchone()[0]
 
 
-def largest_repo():
+def largest_repo(username):
     config.cur.execute("""
-        SELECT repo_name, size
+        SELECT MAX(Repos.size)
         FROM Repos
-        ORDER BY size DESC
-        LIMIT 1;
-    """)
-    return config.cur.fetchone()
+        JOIN Users
+        ON Users.github_id = Repos.github_userid
+        WHERE Users.username = ?
+    """, (username,))
+
+    result = config.cur.fetchone()
+    return result[0] if result else 0
 
 
 def most_starred_repo():
@@ -68,30 +89,58 @@ def most_forked_repo():
     return config.cur.fetchone()
 
 
-def avg_stars():
+def avg_stars(username):
     config.cur.execute("""
-        SELECT AVG(stars)
-        FROM Repos;
-    """)
-    return config.cur.fetchone()[0]
-
-
-def avg_forks():
-    config.cur.execute("""
-        SELECT AVG(forks)
-        FROM Repos;
-    """)
-    return config.cur.fetchone()[0]
-
-
-def languages_used():
-    config.cur.execute("""
-        SELECT language, COUNT(*)
+        SELECT AVG(Repos.stars)
         FROM Repos
-        GROUP BY language
-        ORDER BY COUNT(*) DESC;
-    """)
-    return config.cur.fetchall()
+        JOIN Users
+        ON Users.github_id = Repos.github_userid
+        WHERE Users.username = ?
+    """, (username,))
+
+    result = config.cur.fetchone()
+
+    if result[0] is None:
+        return 0
+
+    return result[0]
+
+
+def avg_forks(username):
+    config.cur.execute("""
+        SELECT AVG(Repos.forks)
+        FROM Repos
+        JOIN Users
+        ON Users.github_id = Repos.github_userid
+        WHERE Users.username = ?
+    """, (username,))
+
+    result = config.cur.fetchone()
+
+    if result[0] is None:
+        return 0
+
+    return result[0]
+
+
+def most_used_language(username):
+    config.cur.execute("""
+        SELECT Repos.language, COUNT(*)
+        FROM Repos
+        JOIN Users
+        ON Users.github_id = Repos.github_userid
+        WHERE Users.username = ?
+        GROUP BY Repos.language
+        ORDER BY COUNT(*) DESC
+        LIMIT 1;
+    """, (username,))
+
+    result = config.cur.fetchone()
+
+    if result:
+        return result[0]
+
+    return "N/A"
 
 
 def display():
@@ -122,7 +171,7 @@ def display():
     print("Languages Used".center(len(line)))
     print(line)
 
-    for language, count in languages_used():
+    for language, count in most_used_language():
         print(f"{language or 'Unknown':15} {count}".center(len(line)))  
         
 def get_report():
@@ -138,5 +187,5 @@ def get_report():
         "Most Forked Repo": most_forked_repo(),
         "Average Stars": avg_stars(),
         "Average Forks": avg_forks(),
-        "Languages": dict(languages_used())
+        "Languages": dict(most_used_language())
     }

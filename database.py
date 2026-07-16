@@ -1,6 +1,6 @@
 import github_api,config
 
-def store():
+def store(username):
     cur = config.con.cursor()
     cur.executescript('''
 CREATE TABLE IF NOT EXISTS Users(
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS Repos(
                       repo_updated_at TEXT,
                       repo_url TEXT)
                 ''')
-    user_data, repo_data = github_api.fetch()
+    user_data, repo_data = github_api.fetch(username)
     if user_data == "not_found":
         print("User not found")
         cur.close()
